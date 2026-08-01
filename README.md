@@ -80,13 +80,32 @@ dark » libre de droits est synthétisé automatiquement (nappes graves, trémol
 lent, écho). La musique est mixée sous la voix avec un léger *ducking*
 (sidechain compression) pour que la narration reste au premier plan.
 
+## Rythme & mouvement
+
+Style « short » dynamique : chaque scène est découpée en **plans d'environ 3 s**
+(coupe rapide) et animée d'un **zoom rapide** (avec léger panoramique), tandis
+que la voix off et les sous-titres se déroulent en continu.
+
+```bash
+python3 generate_video.py data/10-faits-terre.json \
+    --shot-dur 3      # durée cible d'un plan en secondes
+    --zoom-max 1.30   # facteur de zoom atteint par plan (plus haut = plus rapide)
+```
+
 ## Options
 
 ```bash
 python3 generate_video.py data/10-faits-terre.json \
     --width 1080 --height 1920 --fps 30 \
+    --shot-dur 3 --zoom-max 1.30 \
     --keep-workdir            # conserve les fichiers intermédiaires
 ```
+
+## Démarrage automatique (Claude Code on the web)
+
+Le dépôt inclut un hook `SessionStart` (`.claude/hooks/session-start.sh`) qui
+installe automatiquement `ffmpeg`, `espeak-ng` et les dépendances Python au
+démarrage d'une session web, afin que la pipeline soit immédiatement exécutable.
 
 ## Architecture
 

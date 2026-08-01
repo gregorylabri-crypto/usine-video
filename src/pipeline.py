@@ -36,6 +36,8 @@ class RenderConfig:
     tail: float = 0.6            # respiration ajoutée après chaque réplique (s)
     lead: float = 0.25           # petit silence en tête de scène (s)
     font: str = "DejaVu Sans"
+    shot_dur: float = 3.0        # durée cible d'un plan (coupe rapide toutes les ~3 s)
+    zoom_max: float = 1.30       # facteur de zoom atteint sur un plan (zoom rapide)
 
 
 def _run(cmd: List[str]) -> None:
@@ -48,36 +50,52 @@ def _run(cmd: List[str]) -> None:
         )
 
 
-def _kenburns_filter(cfg: RenderConfig, frames: int, zoom_in: bool) -> str:
-    """Filtre vidéo Ken Burns pour une image fixe (léger zoom lent centré)."""
+def _kenburns_filter(cfg: RenderConfig, frames: int, zoom_in: bool,
+                     pan_dir: int) -> str:
+    """Filtre Ken Burns « punchy » : zoom rapide + léger pan, pour une image fixe.
+
+    ``pan_dir`` (-1, 0 ou +1) décale lentement le cadrage horizontalement afin
+    que chaque plan de ~3 s ait un mouvement distinct.
+    """
     w, h = cfg.width, cfg.height
+    amt = cfg.zoom_max - 1.0
     if zoom_in:
-        z = f"min(1.0+0.12*on/{frames},1.12)"
+        z = f"min(1.0+{amt:.3f}*on/{frames},{cfg.zoom_max:.3f})"
     else:
-        z = f"max(1.12-0.12*on/{frames},1.0)"
+        z = f"max({cfg.zoom_max:.3f}-{amt:.3f}*on/{frames},1.0)"
+    # pan : amplitude ~4 % de la largeur source, progressif sur la durée du plan
+    pan = f"+({pan_dir}*0.04*iw*on/{frames})" if pan_dir else ""
     # sur-échantillonnage x2 avant zoompan pour limiter le tremblement
     return (
         f"scale={w*2}:{h*2},"
         f"zoompan=z='{z}':d={frames}:"
-        f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':"
+        f"x='iw/2-(iw/zoom/2){pan}':y='ih/2-(ih/zoom/2)':"
         f"s={w}x{h}:fps={cfg.fps},"
         f"format=yuv420p"
     )
 
 
-def _render_scene_clip(image_path: str, out_path: str, total_dur: float,
-                       cfg: RenderConfig, zoom_in: bool) -> None:
-    frames = max(1, round(total_dur * cfg.fps))
+def _render_shot(image_path: str, out_path: str, dur: float,
+                 cfg: RenderConfig, zoom_in: bool, pan_dir: int) -> None:
+    """Rend un plan unique (image fixe animée) de durée ``dur``."""
+    frames = max(1, round(dur * cfg.fps))
     _run([
         "ffmpeg", "-y", "-loglevel", "error",
         "-loop", "1", "-i", image_path,
-        "-t", f"{total_dur:.3f}",
-        "-vf", _kenburns_filter(cfg, frames, zoom_in),
+        "-t", f"{dur:.3f}",
+        "-vf", _kenburns_filter(cfg, frames, zoom_in, pan_dir),
         "-r", str(cfg.fps),
         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
         "-pix_fmt", "yuv420p",
         out_path,
     ])
+
+
+def _split_shots(total_dur: float, shot_dur: float) -> List[float]:
+    """Découpe ``total_dur`` en plans de longueur ~``shot_dur`` (répartition égale)."""
+    n = max(1, round(total_dur / shot_dur))
+    base = total_dur / n
+    return [base] * n
 
 
 def _padded_scene_audio(voice_path: str, out_path: str,
@@ -154,14 +172,24 @@ def generate(config_path: str, cfg: RenderConfig | None = None,
     with open(ass_path, "w", encoding="utf-8") as fh:
         fh.write(build_ass(plans, cfg.width, cfg.height, cfg.font))
 
-    # --- Étape 3 : clips de scène (Ken Burns) ---------------------------- #
+    # --- Étape 3 : clips (plans de ~3 s, zoom rapide) -------------------- #
+    # Chaque scène est découpée en plans de ~shot_dur secondes : coupe rapide
+    # visuelle tout en laissant la voix off et les sous-titres se dérouler.
     clip_files = []
+    shot_idx = 0
     for i, plan in enumerate(plans):
-        clip = os.path.join(tmp, f"clip_{i:02d}.mp4")
-        print(f"  Rendu scène {i+1}/{len(plans)} ({plan.total_dur:.1f}s)")
-        _render_scene_clip(scene_image_files[i], clip, plan.total_dur, cfg,
-                           zoom_in=(i % 2 == 0))
-        clip_files.append(clip)
+        shots = _split_shots(plan.total_dur, cfg.shot_dur)
+        print(f"  Rendu scène {i+1}/{len(plans)} — {len(shots)} plan(s) "
+              f"de ~{shots[0]:.1f}s")
+        for s, dur in enumerate(shots):
+            clip = os.path.join(tmp, f"clip_{i:02d}_{s:02d}.mp4")
+            _render_shot(
+                scene_image_files[i], clip, dur, cfg,
+                zoom_in=(shot_idx % 2 == 0),
+                pan_dir=(1 if shot_idx % 2 == 0 else -1),
+            )
+            clip_files.append(clip)
+            shot_idx += 1
 
     # --- Étape 4 : concaténation vidéo ----------------------------------- #
     concat_list = os.path.join(tmp, "clips.txt")
