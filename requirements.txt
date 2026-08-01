@@ -1,0 +1,12 @@
+# Usine à vidéos faceless — dépendances Python
+#
+# Prérequis système (hors pip) :
+#   - ffmpeg / ffprobe   (montage, encodage H.264/AAC, filtres zoompan/subtitles)
+#   - espeak-ng          (voix off hors-ligne, repli quand Edge TTS est bloqué)
+#
+# Sur Debian/Ubuntu :
+#   sudo apt-get install -y ffmpeg espeak-ng
+
+edge-tts>=6.1.12   # voix off neuronales (voix par défaut du JSON)
+Pillow>=10.0       # génération/traitement des images de fond
+requests>=2.28     # récupération des photos de stock (Pexels/Pixabay/Unsplash)

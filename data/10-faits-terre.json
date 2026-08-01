@@ -1,0 +1,54 @@
+{
+  "title": "10 faits surprenants sur la Terre",
+  "voice": "fr-FR-DeniseNeural",
+  "rate": "+15%",
+  "music": "assets/music/cosmic_dark.mp3",
+  "music_volume": 0.12,
+  "output": "output/10-faits-terre.mp4",
+  "scenes": [
+    {
+      "image_query": "planet earth from space blue",
+      "text": "10 faits surprenants sur la Terre. Le numéro 5 va te déranger."
+    },
+    {
+      "image_query": "earth globe slightly flattened space",
+      "text": "La Terre n'est pas ronde. Elle est aplatie aux pôles. Tu pèses même un peu moins à l'équateur."
+    },
+    {
+      "image_query": "moon earth tidal space",
+      "text": "Les jours rallongent. La rotation ralentit à cause de la Lune. Il y a 600 millions d'années, un jour durait 22 heures."
+    },
+    {
+      "image_query": "Chimborazo volcano Ecuador summit",
+      "text": "Le point le plus proche de l'espace n'est pas l'Everest. C'est le Chimborazo, en Équateur, à cause du renflement de la Terre."
+    },
+    {
+      "image_query": "earth core molten glowing",
+      "text": "Le noyau de la Terre est aussi chaud que la surface du Soleil. Près de 5400 degrés."
+    },
+    {
+      "image_query": "deep ocean dark underwater",
+      "text": "On connaît mieux Mars que nos océans. Plus de 80 pour cent des fonds marins n'ont jamais été cartographiés."
+    },
+    {
+      "image_query": "lightning storm dramatic sky",
+      "text": "La foudre frappe 100 fois par seconde. Environ 8 millions d'éclairs chaque jour sur la planète."
+    },
+    {
+      "image_query": "tectonic plates earth cracks",
+      "text": "Les continents bougent aussi vite que tes ongles poussent. De 2 à 5 centimètres par an."
+    },
+    {
+      "image_query": "water ice steam three states",
+      "text": "La Terre est la seule planète où l'eau existe sous trois états à la fois. Solide, liquide et gazeuse."
+    },
+    {
+      "image_query": "dinosaur fossil extinction",
+      "text": "Plus de 99 pour cent des espèces ayant vécu sur Terre ont disparu. Nous sommes le 1 pour cent restant."
+    },
+    {
+      "image_query": "earth magnetic field aurora",
+      "text": "Le champ magnétique s'inverse. Le nord et le sud ont déjà échangé leurs places. La dernière fois, il y a 780 000 ans. Abonne-toi pour d'autres faits."
+    }
+  ]
+}
