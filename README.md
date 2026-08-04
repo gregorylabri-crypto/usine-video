@@ -122,3 +122,48 @@ data/                  Exemples de fichiers JSON
 ## Exemple inclus
 
 `data/10-faits-terre.json` produit une vidéo de ~64 s : `output/10-faits-terre.mp4`.
+
+---
+
+# Format « Trouve l'intrus » (jeu 🐱)
+
+Un deuxième générateur produit des vidéos-jeu **« trouve l'intrus »** (find the
+odd one out) — un format à fort taux de rétention et de commentaires : grille
+d'emojis identiques avec un seul intrus, compte à rebours, révélation animée
+(zoom + « ding »), voix off et musique enjouée.
+
+```bash
+python3 generate_game.py data/trouve-intrus-chats.json
+# → output/trouve-intrus-chats.mp4
+```
+
+### Format du JSON
+
+```jsonc
+{
+  "voice": "fr-FR-DeniseNeural",
+  "rate": "+12%",
+  "music": "assets/music/game_light.mp3",   // synthétisée si absente
+  "music_volume": 0.16,
+  "output": "output/trouve-intrus-chats.mp4",
+  "cta": "T'en as trouve combien ? Commente et abonne-toi",
+  "rounds": [
+    {
+      "base": "🐶",          // emoji majoritaire
+      "intruder": "🐱",      // l'intrus à trouver
+      "cols": 5, "rows": 7,   // taille de la grille
+      "timer": 6,             // secondes de recherche (compte à rebours)
+      "seed": 11,             // position de l'intrus (reproductible)
+      "hook": "Trouve l'intrus",
+      "reveal_text": "Le voila !"
+    }
+    // ... enchaîner les manches en difficulté croissante
+  ]
+}
+```
+
+**Conseils viralité** : monter la difficulté manche après manche (grille plus
+grande + paire d'emojis plus proche, ex. `😸`/`😺`), garder un hook fort
+(« 90% échouent ici »), et finir sur un CTA qui provoque le commentaire
+(« t'en as trouvé combien ? »). Les emojis sont rendus via Noto Color Emoji ;
+tout le son (ding + musique) est synthétisé, donc aucun asset externe requis.

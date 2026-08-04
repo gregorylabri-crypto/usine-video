@@ -1,0 +1,41 @@
+{
+  "title": "Trouve l'intrus",
+  "voice": "fr-FR-DeniseNeural",
+  "rate": "+12%",
+  "music": "assets/music/game_light.mp3",
+  "music_volume": 0.16,
+  "output": "output/trouve-intrus-chats.mp4",
+  "cta": "T'en as trouve combien ? Commente et abonne-toi",
+  "rounds": [
+    {
+      "base": "🐶",
+      "intruder": "🐱",
+      "cols": 5,
+      "rows": 7,
+      "timer": 6,
+      "seed": 11,
+      "hook": "Trouve l'intrus",
+      "reveal_text": "Le voila !"
+    },
+    {
+      "base": "🐹",
+      "intruder": "🐭",
+      "cols": 6,
+      "rows": 8,
+      "timer": 8,
+      "seed": 27,
+      "hook": "Niveau 2 - plus dur",
+      "reveal_text": "Ici !"
+    },
+    {
+      "base": "😸",
+      "intruder": "😺",
+      "cols": 6,
+      "rows": 9,
+      "timer": 10,
+      "seed": 44,
+      "hook": "90% echouent ici",
+      "reveal_text": "Trouve !"
+    }
+  ]
+}
