@@ -1,0 +1,16 @@
+{
+  "title": "Trouve les 8 differences",
+  "voice": "fr-FR-DeniseNeural",
+  "rate": "+8%",
+  "music": "assets/music/game_light.mp3",
+  "music_volume": 0.14,
+  "output": "output/differences-animaux-60s.mp4",
+  "layout": "side",
+  "theme": "animaux",
+  "seed": 21,
+  "num_differences": 8,
+  "timer": 50,
+  "hook": "Trouve les 8 differences entre ces deux images d'animaux. Tu as 50 secondes.",
+  "reveal_line": "Les voila !",
+  "cta": "LIKE si tu as tout trouve !"
+}

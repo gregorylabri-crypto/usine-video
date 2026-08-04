@@ -167,3 +167,48 @@ grande + paire d'emojis plus proche, ex. `😸`/`😺`), garder un hook fort
 (« 90% échouent ici »), et finir sur un CTA qui provoque le commentaire
 (« t'en as trouvé combien ? »). Les emojis sont rendus via Noto Color Emoji ;
 tout le son (ding + musique) est synthétisé, donc aucun asset externe requis.
+
+---
+
+# Format « Cherche les différences » 🔍
+
+Troisième générateur : le classique **« cherche les différences »** — deux
+scènes côte à côte, un **minuteur circulaire** central qui décompte, puis une
+**révélation progressive en cercles verts** (un par différence, avec un
+« ding »). Format paysage 16:9 pensé pour une vidéo d'une minute.
+
+```bash
+python3 generate_spot.py data/differences-animaux-60s.json
+# → output/differences-animaux-60s.mp4  (~60 s, 1920x1080)
+```
+
+### Comment les différences sont garanties justes
+
+La scène est composée par le code à partir d'emojis (thèmes fournis). La
+variante applique **exactement N différences contrôlées** — ajout, retrait,
+changement de couleur, taille, miroir, déplacement, remplacement par un emoji
+proche. Comme chaque différence est posée par nous, sa position est connue :
+la révélation est **exacte**, sans dépendre d'un diff d'images IA hasardeux.
+
+### Format du JSON
+
+```jsonc
+{
+  "layout": "side",              // "side" (paysage 16:9) | "stack" (vertical)
+  "theme": "animaux",            // "animaux" | "alchimie" | "jardin"
+  "seed": 21,
+  "num_differences": 8,
+  "timer": 50,                    // secondes de recherche (minuteur)
+  "hook": "Trouve les 8 différences…",
+  "cta": "LIKE si tu as tout trouvé !",  // 👍 affiché sur le bandeau final
+  "music": "assets/music/game_light.mp3",
+  "output": "output/differences-animaux-60s.mp4"
+}
+```
+
+**Thèmes fournis** : `animaux` (ménagerie mignonne), `alchimie` (labo de
+sorcier, ambiance sombre), `jardin`. Ajouter un thème = une entrée dans
+`THEMES` de `src/spot_diff.py` (couleurs de fond + bandes d'emojis + paires de
+remplacement). Layout `side` reproduit le style des vidéos-jeu virales
+(minuteur circulaire, cercles verts) ; `stack` donne une version verticale
+pour les shorts.
