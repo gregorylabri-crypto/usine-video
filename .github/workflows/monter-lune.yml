@@ -1,0 +1,61 @@
+name: Monter la vidéo Lune
+
+# Lancement manuel depuis l'onglet "Actions" de GitHub.
+# Télécharge les 3 clips, génère la voix off (edge-tts, vraie voix française),
+# monte la vidéo avec monter_lune.sh, et publie lune_tiktok.mp4 en artefact.
+on:
+  workflow_dispatch:
+    inputs:
+      clip1_url:
+        description: "Clip 1 (ciel / Lune qui disparaît) — URL .mp4"
+        required: true
+        default: "https://d8j0ntlcm91z4.cloudfront.net/user_3GrTm2KlPpy4NrGWkIsIrLy3qba/hf_20260805_205207_8aef5b55-8c54-4184-9769-16039656daee.mp4"
+      clip2_url:
+        description: "Clip 2 (océans / marées) — URL .mp4"
+        required: true
+        default: "https://d8j0ntlcm91z4.cloudfront.net/user_3GrTm2KlPpy4NrGWkIsIrLy3qba/hf_20260805_205829_5a0c8246-4e9d-4b3c-ac35-8a38b1f9e4d8.mp4"
+      clip3_url:
+        description: "Clip 3 (Terre / axe qui vacille) — URL .mp4"
+        required: true
+        default: "https://d8j0ntlcm91z4.cloudfront.net/user_3GrTm2KlPpy4NrGWkIsIrLy3qba/hf_20260805_205903_288af0e0-1018-4f2f-b3ec-3c9b8651507a.mp4"
+      music_url:
+        description: "Musique de fond (optionnel) — URL .mp3"
+        required: false
+        default: ""
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le repo
+        uses: actions/checkout@v4
+
+      - name: Installer les dépendances (ffmpeg, espeak-ng, edge-tts)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg espeak-ng
+          python3 -m pip install --user edge-tts
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Télécharger les clips (et la musique si fournie)
+        run: |
+          mkdir -p clips
+          curl -sSL -o clips/1.mp4 "${{ github.event.inputs.clip1_url }}"
+          curl -sSL -o clips/2.mp4 "${{ github.event.inputs.clip2_url }}"
+          curl -sSL -o clips/3.mp4 "${{ github.event.inputs.clip3_url }}"
+          if [ -n "${{ github.event.inputs.music_url }}" ]; then
+            curl -sSL -o musique.mp3 "${{ github.event.inputs.music_url }}"
+          fi
+          echo "Contenu de clips/ :"; ls -la clips/
+
+      - name: Monter la vidéo
+        run: |
+          chmod +x monter_lune.sh
+          ./monter_lune.sh
+
+      - name: Publier lune_tiktok.mp4 (artefact téléchargeable)
+        uses: actions/upload-artifact@v4
+        with:
+          name: lune_tiktok
+          path: lune_tiktok.mp4
+          if-no-files-found: error
