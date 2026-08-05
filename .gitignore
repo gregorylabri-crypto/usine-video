@@ -7,3 +7,7 @@ usine_*/
 # Images de stock téléchargées à la volée (regénérées à chaque run)
 assets/images/*
 !assets/images/.gitkeep
+
+# Contenu personnel de l'utilisateur (photos/vidéos perso) — ne pas publier
+scratch_cat/
+output/mon-chat-tiktok.mp4
