@@ -85,6 +85,26 @@ THEMES: Dict[str, dict] = {
                  "🐝": "🐞", "🐞": "🐝", "☁️": "🌥️", "🦋": "🐝",
                  "🍄": "🌰", "🍎": "🍏", "🐦": "🐤"},
     },
+    # Chats & chatons : scène cosy « monde des chats » (chats + objets).
+    # band_scale rend les éléments du sol plus petits → effet « chatons ».
+    "chats": {
+        "bg_style": "outdoor",
+        "bg_top": (255, 231, 238),      # crème rosé (mur)
+        "bg_bottom": (247, 221, 197),   # beige chaud (sol)
+        "ground": 0.58,
+        "band_scale": [0.85, 1.18, 0.82],
+        "bands": [
+            (0.05, 0.28, [("🎀", 2), ("🦋", 2), ("🐾", 3), ("🧶", 2), ("🪀", 1)]),
+            (0.30, 0.56, [("😺", 1), ("😸", 1), ("🐱", 1), ("🐈", 1),
+                          ("😻", 1), ("🐈‍⬛", 1)]),
+            (0.60, 0.94, [("🐱", 3), ("😸", 2), ("😺", 1), ("🧶", 2), ("🐟", 2),
+                          ("🥛", 1), ("📦", 1), ("🐁", 2), ("🐾", 2), ("🍥", 1)]),
+        ],
+        "add_pool": ["🐾", "🧶", "🐟", "🎀", "🐁", "⭐", "🍥"],
+        "swap": {"😺": "😸", "😸": "😺", "😹": "😸", "😻": "😺",
+                 "🐱": "😺", "🐈": "🐱", "🐈‍⬛": "🐈", "🐟": "🐠",
+                 "🐠": "🐟", "🐁": "🐭", "🎀": "🧶"},
+    },
     # Ménagerie / animaux mignons (extérieur nature).
     "animaux": {
         "bg_style": "outdoor",
@@ -129,7 +149,9 @@ _SIZES = {"☀️": 150, "☁️": 130, "🌳": 175, "🎈": 120, "🍎": 90,
           "🕸️": 150, "🔮": 118, "📖": 112, "💀": 104, "🦉": 112, "⏳": 104,
           "🌙": 96, "🕯️": 84, "🕷️": 74,
           "🐻": 112, "🐼": 112, "🦁": 114, "🐯": 110, "🐨": 108, "🐵": 102,
-          "🐷": 98, "🐮": 102, "🦊": 100}
+          "🐷": 98, "🐮": 102, "🦊": 100,
+          "🧶": 88, "🐟": 82, "🐠": 82, "🥛": 78, "📦": 100, "🎀": 72,
+          "🐾": 64, "🐁": 74, "🍥": 82, "🪀": 78}
 _DEFAULT_SIZE = 92
 
 
@@ -152,9 +174,10 @@ def generate_scene(theme: str, seed: int, w: int, h: int) -> List[Sprite]:
                 return False
         return True
 
-    for (y0, y1, props) in spec["bands"]:
+    band_scale = spec.get("band_scale", [1.0] * len(spec["bands"]))
+    for bi, (y0, y1, props) in enumerate(spec["bands"]):
         for ch, qty in props:
-            size = _size_of(ch)
+            size = int(_size_of(ch) * band_scale[bi])
             for _ in range(qty):
                 for _try in range(40):
                     cx = rng.randint(int(w * 0.07), int(w * 0.93))
