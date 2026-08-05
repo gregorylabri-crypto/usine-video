@@ -11,3 +11,12 @@ assets/images/*
 # Contenu personnel de l'utilisateur (photos/vidéos perso) — ne pas publier
 scratch_cat/
 output/mon-chat-tiktok.mp4
+
+# Projet "Lune" : clips IA fournis + sorties générées (non versionnés)
+clips/*
+!clips/.gitkeep
+voix.mp3
+voix.vtt
+voix.wav
+musique.mp3
+lune_tiktok.mp4
