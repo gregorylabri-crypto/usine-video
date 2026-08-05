@@ -18,6 +18,10 @@ on:
         description: "Clip 3 (Terre / axe qui vacille) — URL .mp4"
         required: true
         default: "https://d8j0ntlcm91z4.cloudfront.net/user_3GrTm2KlPpy4NrGWkIsIrLy3qba/hf_20260805_205903_288af0e0-1018-4f2f-b3ec-3c9b8651507a.mp4"
+      voice_model:
+        description: "Voix Piper (fr_FR-siwis-medium = femme claire, fr_FR-tom-medium = homme)"
+        required: false
+        default: "fr_FR-siwis-medium"
       music_url:
         description: "Musique de fond (optionnel) — URL .mp3"
         required: false
@@ -30,12 +34,24 @@ jobs:
       - name: Récupérer le repo
         uses: actions/checkout@v4
 
-      - name: Installer les dépendances (ffmpeg, espeak-ng, edge-tts)
+      - name: Installer les dépendances (ffmpeg, Piper, edge-tts, espeak-ng)
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends ffmpeg espeak-ng
-          python3 -m pip install --user edge-tts
+          python3 -m pip install --user piper-tts edge-tts
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Télécharger la voix neuronale Piper (français)
+        run: |
+          mkdir -p voices
+          VM="${{ github.event.inputs.voice_model }}"
+          # Déduit le chemin HuggingFace : fr_FR-<speaker>-<quality>
+          SPEAKER=$(echo "$VM" | sed -E 's/^fr_FR-([a-z]+)-[a-z]+$/\1/')
+          QUALITY=$(echo "$VM" | sed -E 's/^fr_FR-[a-z]+-([a-z]+)$/\1/')
+          BASE="https://huggingface.co/rhasspy/piper-voices/resolve/main/fr/fr_FR/${SPEAKER}/${QUALITY}/${VM}"
+          curl -sSL -o "voices/${VM}.onnx"      "${BASE}.onnx"
+          curl -sSL -o "voices/${VM}.onnx.json" "${BASE}.onnx.json"
+          ls -la voices/
 
       - name: Télécharger les clips (et la musique si fournie)
         run: |
@@ -48,7 +64,9 @@ jobs:
           fi
           echo "Contenu de clips/ :"; ls -la clips/
 
-      - name: Monter la vidéo
+      - name: Monter la vidéo (voix Piper)
+        env:
+          PIPER_MODEL: ${{ github.workspace }}/voices/${{ github.event.inputs.voice_model }}.onnx
         run: |
           chmod +x monter_lune.sh
           ./monter_lune.sh
